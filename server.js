@@ -4,13 +4,11 @@ const bodyParser = require("body-parser");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.listen(3000, () => {
-  console.log(`Server On Puerto 3000`);
-});
+app.listen(3000, () => console.log(`Server On Puerto 3000`));
 
 const {
   nuevoCurso,
-  editCurso,
+  editarCurso,
   eliminarCurso,
   getData,
 } = require("./consultas");
@@ -21,20 +19,19 @@ app.get("/", (_, res) => {
 
 // 1. Crear una ruta POST /curso que reciba un payload desde el cliente con los datos de un nuevo curso y los ingrese a la tabla cursos.
 app.post("/curso", async (req, res) => {
-  const { nombre } = req.body;
-  const respuesta = await nuevoCurso(nombre);
+  const { nombre, nivelTecnico, fechaInicio, duracion } = req.body;
+  const respuesta = await nuevoCurso(nombre, nivelTecnico, fechaInicio, duracion);
   res.send(respuesta);
 });
 // 2. Crear una ruta GET /cursos que consulte y devuelva los registros almacenados en la tablacursos.
-app.get("/curso", async (_, res) => {
+app.get("/cursos", async (_, res) => {
   const respuesta = await getData();
   res.send(respuesta);
 });
 // 3. Crear una ruta PUT/curso que reciba un payload desde el cliente con los datos de un curso ya existente y actualice su registro en la tabla cursos.
-app.put("/curso/:id", async (req, res) => {
-  const { id } = req.params;
-  const { nombre } = req.body;
-  const respuesta = await editCurso(id, nombre);
+app.put("/curso", async (req, res) => {
+  const { id, nombre, nivelTecnico, fechaInicio, duracion } = req.body;
+  const respuesta = await editarCurso(id, nombre, nivelTecnico, fechaInicio, duracion);
   res.send(respuesta);
 });
 // 4. Crear una ruta DELETE /cursos que reciba el id de un curso como parámetro de la ruta y elimine el registro relacionado en la tablacursos

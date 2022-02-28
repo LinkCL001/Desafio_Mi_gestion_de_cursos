@@ -8,11 +8,13 @@ const pool = new Pool({
   port: 5432,
 });
 
-async function nuevoCurso(id) {
+async function nuevoCurso(nombre, nivelTecnico, fechaInicio, duracion) {
   try {
-    const result = await pool.query(
-      `INSERT INTO cursos (nombre,nivelTecnico,fechaInicio,duracion) values ('${id}') RETURNING *`
-    );
+    const consulta = {
+     text: `INSERT INTO cursos (nombre, nivel, fecha, duracion) values ($1, $2, $3, $4) RETURNING *`,
+     values: [nombre, nivelTecnico, fechaInicio, duracion],
+    };
+    const result = await pool.query(consulta)
     return result.rows;
   } catch (e) {
     return e;
@@ -21,19 +23,24 @@ async function nuevoCurso(id) {
 
 async function getData() {
   try {
-    const result = await pool.query(`SELECT * FROM cursos`);
+    const consulta = {
+      text: `SELECT * FROM cursos`,
+      values: [],
+    }
+    const result = await pool.query(consulta);
     return result.rows;
   } catch (e) {
     return e;
   }
 }
 
-async function editCurso(id, nuevoCurso) {
+async function editarCurso(id, nombre, nivelTecnico, fechaInicio, duracion) {
   try {
-    const res = await pool.query(
-      `UPDATE cursos SET nombre = '${nuevoCurso}' WHERE id = '${id}'
-RETURNING *`
-    );
+    const consulta = {
+      text:`UPDATE cursos SET nombre = $2, nivel = $3, fecha = $4, duracion = $5 WHERE id = $1 RETURNING *`,
+      values: [id, nombre, nivelTecnico, fechaInicio, duracion],
+    }
+    const res = await pool.query(consulta);
     return res.rows;
   } catch (e) {
     console.log(e);
@@ -42,7 +49,11 @@ RETURNING *`
 
 async function eliminarCurso(id) {
   try {
-    const result = await pool.query(`DELETE FROM cursos WHERE id ='${id}'`);
+    const consulta = {
+      text:`DELETE FROM cursos WHERE id = $1`,
+      values: [id],
+    }
+    const result = await pool.query(consulta);
     return result.rowCount;
   } catch (e) {
     return e;
@@ -52,6 +63,6 @@ async function eliminarCurso(id) {
 module.exports = {
   nuevoCurso,
   getData,
-  editCurso,
+  editarCurso,
   eliminarCurso,
 };
